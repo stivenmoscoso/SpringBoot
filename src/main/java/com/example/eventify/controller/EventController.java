@@ -3,31 +3,44 @@ package com.example.eventify.controller;
 
 import com.example.eventify.model.Event;
 import com.example.eventify.service.EventService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/events")
+@RequiredArgsConstructor
+@Tag(name = "Eventos", description = "Operaciones para gestionar eventos")
 public class EventController {
     private final EventService eventService;
-    public EventController(EventService eventService) {
-        this.eventService = eventService;
-    }
+
     @GetMapping
-    public List<Event> findAll() {
-        return eventService.findAll();
+    @Operation(summary = "Listar eventos")
+    public ResponseEntity<List<Event>> findAll() {
+        return ResponseEntity.ok(eventService.findAll());
     }
+
     @GetMapping("/{id}")
-    public Event findById(@PathVariable Long id) {
-        return eventService.findById(id);
+    @Operation(summary = "Consultar evento por id")
+    public ResponseEntity<Event> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(eventService.findById(id));
     }
+
     @PostMapping
-    public Event create(@RequestBody Event newEvent) {
-        return eventService.create(newEvent);
+    @Operation(summary = "Registrar evento")
+    public ResponseEntity<Event> create(@RequestBody Event newEvent) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(eventService.create(newEvent));
     }
+
     @DeleteMapping("/{id}")
-    public void deleteById(@PathVariable Long id) {
+    @Operation(summary = "Eliminar evento")
+    public ResponseEntity<Void> deleteById(@PathVariable Long id) {
         eventService.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }
