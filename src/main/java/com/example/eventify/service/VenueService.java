@@ -1,5 +1,6 @@
 package com.example.eventify.service;
 
+import com.example.eventify.exception.ResourceNotFoundException;
 import com.example.eventify.model.Venue;
 import com.example.eventify.repository.VenueRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ public class VenueService {
 
     public Venue findById(Long id) {
         return venueRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Venue no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Venue no encontrado"));
     }
 
     public Venue create(Venue venue) {
@@ -37,7 +38,16 @@ public class VenueService {
         return venueRepository.save(venue);
     }
 
+    public Venue update(Long id, Venue venue) {
+        Venue existingVenue = findById(id);
+        existingVenue.setNombre(venue.getNombre());
+        existingVenue.setDireccion(venue.getDireccion());
+        existingVenue.setCapacidad(venue.getCapacidad());
+        return venueRepository.save(existingVenue);
+    }
+
     public void deleteById(Long id) {
-        venueRepository.deleteById(id);
+        Venue existingVenue = findById(id);
+        venueRepository.delete(existingVenue);
     }
 }

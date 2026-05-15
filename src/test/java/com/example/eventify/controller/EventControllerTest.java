@@ -6,6 +6,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -34,6 +38,7 @@ class EventControllerTest {
         mockMvc = MockMvcBuilders
                 .standaloneSetup(new EventController(eventService))
                 .setControllerAdvice(new ApiExceptionHandler())
+                .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
                 .build();
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
@@ -69,12 +74,12 @@ class EventControllerTest {
 
     @Test
     void findAllReturnsOkWithEmptyList() throws Exception {
-        when(eventService.findAll()).thenReturn(List.of());
+        when(eventService.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(), PageRequest.of(0, 8), 0));
 
         mockMvc.perform(get("/api/events"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(0)));
+                .andExpect(jsonPath("$.content", hasSize(0)));
 
-        verify(eventService).findAll();
+        verify(eventService).findAll(any(Pageable.class));
     }
 }

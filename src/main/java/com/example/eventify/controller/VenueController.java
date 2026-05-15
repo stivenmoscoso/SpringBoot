@@ -42,6 +42,12 @@ public class VenueController {
         return ResponseEntity.status(HttpStatus.CREATED).body(venueService.create(newVenue));
     }
 
+    @PutMapping("/{id}")
+    @Operation(summary = "Actualizar venue")
+    public ResponseEntity<Venue> update(@PathVariable Long id, @RequestBody Venue newVenue) {
+        return ResponseEntity.ok(venueService.update(id, newVenue));
+    }
+
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar venue")
     public ResponseEntity<Void> deleteById(@PathVariable Long id) {

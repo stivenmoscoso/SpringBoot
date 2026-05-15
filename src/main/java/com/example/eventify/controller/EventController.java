@@ -6,6 +6,9 @@ import com.example.eventify.service.EventService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,8 +24,8 @@ public class EventController {
 
     @GetMapping
     @Operation(summary = "Listar eventos")
-    public ResponseEntity<List<Event>> findAll() {
-        return ResponseEntity.ok(eventService.findAll());
+    public ResponseEntity<Page<Event>> findAll(@PageableDefault(page = 0, size = 8 ) Pageable pageable) {
+        return ResponseEntity.ok(eventService.findAll(pageable));
     }
 
     @GetMapping("/consulta")
@@ -48,5 +51,10 @@ public class EventController {
     public ResponseEntity<Void> deleteById(@PathVariable Long id) {
         eventService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+    @PutMapping("/{id}")
+    @Operation(summary = "Actualizar evento")
+    public ResponseEntity<Event> update(@PathVariable Long id, @RequestBody Event newEvent) {
+        return ResponseEntity.ok(eventService.update(id, newEvent));
     }
 }
