@@ -4,8 +4,11 @@ package com.example.eventify.controller;
 import com.example.eventify.model.Event;
 import com.example.eventify.service.EventService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -24,7 +27,7 @@ public class EventController {
 
     @GetMapping
     @Operation(summary = "Listar eventos")
-    public ResponseEntity<Page<Event>> findAll(@PageableDefault(page = 0, size = 8 ) Pageable pageable) {
+    public ResponseEntity<Page<Event>> findAll(@ParameterObject @PageableDefault(page = 0, size = 8, sort = "nombre") Pageable pageable) {
         return ResponseEntity.ok(eventService.findAll(pageable));
     }
 
@@ -36,6 +39,10 @@ public class EventController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Consultar evento por id")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Evento encontrado"),
+            @ApiResponse(responseCode = "404", description = "Evento no encontrado")
+    })
     public ResponseEntity<Event> findById(@PathVariable Long id) {
         return ResponseEntity.ok(eventService.findById(id));
     }
@@ -48,12 +55,21 @@ public class EventController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar evento")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Evento eliminado"),
+            @ApiResponse(responseCode = "404", description = "Evento no encontrado")
+    })
     public ResponseEntity<Void> deleteById(@PathVariable Long id) {
         eventService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
     @PutMapping("/{id}")
     @Operation(summary = "Actualizar evento")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Evento actualizado"),
+            @ApiResponse(responseCode = "404", description = "Evento no encontrado")
+    })
     public ResponseEntity<Event> update(@PathVariable Long id, @RequestBody Event newEvent) {
         return ResponseEntity.ok(eventService.update(id, newEvent));
     }

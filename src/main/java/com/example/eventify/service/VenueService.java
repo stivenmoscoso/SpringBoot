@@ -4,6 +4,8 @@ import com.example.eventify.exception.ResourceNotFoundException;
 import com.example.eventify.model.Venue;
 import com.example.eventify.repository.VenueRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,6 +17,10 @@ public class VenueService {
 
     public List<Venue> findAll() {
         return venueRepository.findAll();
+    }
+
+    public Page<Venue> findAll(Pageable pageable) {
+        return venueRepository.findAll(pageable);
     }
 
     public List<Venue> findByNombre(String nombre) {

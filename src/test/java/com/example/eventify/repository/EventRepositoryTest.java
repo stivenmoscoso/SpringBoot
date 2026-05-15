@@ -1,10 +1,9 @@
 package com.example.eventify.repository;
 
 import com.example.eventify.model.Event;
-import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -12,8 +11,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest
-@Transactional
+@DataJpaTest
 class EventRepositoryTest {
     @Autowired
     private EventRepository eventRepository;
