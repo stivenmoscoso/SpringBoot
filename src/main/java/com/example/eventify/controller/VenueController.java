@@ -24,6 +24,12 @@ public class VenueController {
         return ResponseEntity.ok(venueService.findAll());
     }
 
+    @GetMapping("/consulta")
+    @Operation(summary = "Consultar venues por nombre")
+    public ResponseEntity<List<Venue>> findByNombre(@RequestParam String nombre) {
+        return ResponseEntity.ok(venueService.findByNombre(nombre));
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "Consultar venue por id")
     public ResponseEntity<Venue> findById(@PathVariable Long id) {

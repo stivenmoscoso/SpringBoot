@@ -25,6 +25,12 @@ public class EventController {
         return ResponseEntity.ok(eventService.findAll());
     }
 
+    @GetMapping("/consulta")
+    @Operation(summary = "Consultar eventos por nombre")
+    public ResponseEntity<List<Event>> findByNombre(@RequestParam String nombre) {
+        return ResponseEntity.ok(eventService.findByNombre(nombre));
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "Consultar evento por id")
     public ResponseEntity<Event> findById(@PathVariable Long id) {

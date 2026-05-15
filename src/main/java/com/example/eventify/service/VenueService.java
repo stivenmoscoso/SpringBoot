@@ -16,6 +16,10 @@ public class VenueService {
         return venueRepository.findAll();
     }
 
+    public List<Venue> findByNombre(String nombre) {
+        return venueRepository.findByNombre(nombre);
+    }
+
     public Venue findById(Long id) {
         return venueRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Venue no encontrado"));

@@ -16,6 +16,11 @@ public class EventService {
     public List<Event> findAll() {
         return eventRepository.findAll();
     }
+
+    public List<Event> findByNombre(String nombre) {
+        return eventRepository.findByNombre(nombre);
+    }
+
     public Event findById(Long id) {
         return eventRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Evento no encontrado"));

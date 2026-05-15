@@ -1,7 +1,10 @@
 package com.example.eventify.repository;
 
 import com.example.eventify.model.Event;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -9,24 +12,35 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@SpringBootTest
+@Transactional
 class EventRepositoryTest {
+    @Autowired
+    private EventRepository eventRepository;
+
     @Test
     void findAllReturnsEmptyListWhenNoEventsWereSaved() {
-        EventRepository eventRepository = new EventRepository();
-
         List<Event> events = eventRepository.findAll();
 
         assertTrue(events.isEmpty());
     }
 
     @Test
-    void saveStoresEventInMemoryCollection() {
-        EventRepository eventRepository = new EventRepository();
+    void savePersistsEvent() {
         Event event = new Event(null, "Mundial de futbol", LocalDate.of(2026, 6, 11), "Canada, EEUU, Mexico");
 
         Event savedEvent = eventRepository.save(event);
 
-        assertEquals(1L, savedEvent.getId());
         assertEquals(List.of(savedEvent), eventRepository.findAll());
+    }
+
+    @Test
+    void findByNombreReturnsMatchingEvents() {
+        Event event = new Event(null, "Mundial de futbol", LocalDate.of(2026, 6, 11), "Canada, EEUU, Mexico");
+        eventRepository.save(event);
+
+        List<Event> events = eventRepository.findByNombre("Mundial de futbol");
+
+        assertEquals(List.of(event), events);
     }
 }
