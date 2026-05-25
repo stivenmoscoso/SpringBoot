@@ -1,6 +1,7 @@
 package com.example.eventify.repository;
 
 import com.example.eventify.model.Venue;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
@@ -13,6 +14,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class VenueRepositoryTest {
     @Autowired
     private VenueRepository venueRepository;
+
+    @Autowired
+    private EventRepository eventRepository;
+
+    @BeforeEach
+    void setUp() {
+        eventRepository.deleteAll();
+        venueRepository.deleteAll();
+    }
 
     @Test
     void savePersistsVenue() {

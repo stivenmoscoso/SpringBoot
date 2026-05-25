@@ -45,7 +45,7 @@ class PersistenceRestartIntegrationTest {
                         "--spring.datasource.driver-class-name=org.h2.Driver",
                         "--spring.datasource.username=sa",
                         "--spring.datasource.password=",
-                        "--spring.jpa.hibernate.ddl-auto=update",
+                        "--spring.jpa.hibernate.ddl-auto=validate",
                         "--spring.jpa.show-sql=false",
                         "--spring.h2.console.enabled=false"
                 );

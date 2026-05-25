@@ -138,6 +138,7 @@
         }
 
         input,
+        select,
         textarea {
             border: 1px solid var(--border);
             border-radius: 6px;
@@ -146,6 +147,72 @@
             min-height: 42px;
             padding: 9px 10px;
             width: 100%;
+        }
+
+        .filters {
+            align-items: end;
+            display: grid;
+            gap: 14px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            margin-bottom: 16px;
+        }
+
+        .filter-actions {
+            align-items: center;
+            display: flex;
+            gap: 10px;
+        }
+
+        .link-button,
+        .pager a,
+        .pager span {
+            align-items: center;
+            border-radius: 6px;
+            display: inline-flex;
+            min-height: 40px;
+            padding: 0 14px;
+            text-decoration: none;
+        }
+
+        .link-button,
+        .pager a {
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .pager {
+            align-items: center;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 16px;
+        }
+
+        .pager span {
+            background: #eef2f7;
+            color: var(--muted);
+        }
+
+        .checks {
+            display: grid;
+            gap: 8px;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        }
+
+        .check {
+            align-items: center;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            display: flex;
+            gap: 8px;
+            min-height: 42px;
+            padding: 8px 10px;
+        }
+
+        .check input {
+            min-height: auto;
+            width: auto;
         }
 
         textarea {
@@ -200,31 +267,75 @@
     <section aria-labelledby="events-title">
         <div class="section-title">
             <h2 id="events-title">Eventos</h2>
-            <span class="count" th:text="${#lists.size(events)} + ' registrados'">0 registrados</span>
+            <span class="count" th:text="${events.numberOfElements} + ' visibles'">0 visibles</span>
         </div>
 
-        <p class="empty" th:if="${#lists.isEmpty(events)}">Catalogo de eventos vacio.</p>
+        <form class="filters" th:action="@{/admin/catalog}" method="get">
+            <label>
+                Ciudad
+                <input type="text" name="city" maxlength="50" th:value="${city}">
+            </label>
+            <label>
+                Categoria
+                <select name="category">
+                    <option value="">Todas</option>
+                    <option th:each="cat : ${categories}"
+                            th:value="${cat.nombre}"
+                            th:text="${cat.nombre}"
+                            th:selected="${cat.nombre == category}">Tecnologia</option>
+                </select>
+            </label>
+            <label>
+                Capacidad minima
+                <input type="number" name="capacity" min="1" th:value="${capacity}">
+            </label>
+            <label>
+                Desde
+                <input type="date" name="startDate" th:value="${startDate}">
+            </label>
+            <label>
+                Hasta
+                <input type="date" name="endDate" th:value="${endDate}">
+            </label>
+            <input type="hidden" name="size" th:value="${pageSize}">
+            <div class="filter-actions">
+                <button type="submit">Filtrar</button>
+                <a class="link-button" th:href="@{/admin/catalog(size=${pageSize})}">Limpiar</a>
+            </div>
+        </form>
 
-        <div class="table-wrap" th:unless="${#lists.isEmpty(events)}">
+        <p class="empty" th:if="${events.empty}">Catalogo de eventos vacio.</p>
+
+        <div class="table-wrap" th:unless="${events.empty}">
             <table>
                 <thead>
                 <tr>
-                    <th>ID</th>
                     <th>Nombre</th>
                     <th>Fecha</th>
-                    <th>Descripcion</th>
+                    <th>Venue</th>
+                    <th>Ciudad</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="event : ${events}">
-                    <td th:text="${event.id}">1</td>
-                    <td th:text="${event.nombre}">Conferencia</td>
+                <tr th:each="event : ${events.content}">
+                    <td th:text="${event.nombreEvento}">Conferencia</td>
                     <td th:text="${event.fecha}">2026-06-01</td>
-                    <td th:text="${event.descripcion}">Descripcion del evento</td>
+                    <td th:text="${event.nombreLugar}">Auditorio Central</td>
+                    <td th:text="${event.ciudad}">Bogota</td>
                 </tr>
                 </tbody>
             </table>
         </div>
+
+        <nav class="pager" aria-label="Paginacion de eventos">
+            <span th:if="${events.first}">Anterior</span>
+            <a th:unless="${events.first}"
+               th:href="@{/admin/catalog(page=${events.number - 1}, size=${pageSize}, city=${city}, category=${category}, capacity=${capacity}, startDate=${startDate}, endDate=${endDate})}">Anterior</a>
+            <span th:text="'Pagina ' + ${events.number + 1}">Pagina 1</span>
+            <span th:if="${events.last}">Siguiente</span>
+            <a th:unless="${events.last}"
+               th:href="@{/admin/catalog(page=${events.number + 1}, size=${pageSize}, city=${city}, category=${category}, capacity=${capacity}, startDate=${startDate}, endDate=${endDate})}">Siguiente</a>
+        </nav>
     </section>
 
     <section aria-labelledby="venues-title">
@@ -281,6 +392,24 @@
                     <label>
                         Descripcion
                         <textarea th:field="*{descripcion}" maxlength="50" required></textarea>
+                    </label>
+                    <label>
+                        Venue
+                        <select name="venueId" required>
+                            <option value="">Seleccionar venue</option>
+                            <option th:each="venueOption : ${venues}"
+                                    th:value="${venueOption.id}"
+                                    th:text="${venueOption.nombre + ' - ' + venueOption.ciudad}">Auditorio Central</option>
+                        </select>
+                    </label>
+                    <label>
+                        Categorias
+                        <span class="checks">
+                            <label class="check" th:each="cat : ${categories}">
+                                <input type="checkbox" name="categoryIds" th:value="${cat.id}">
+                                <span th:text="${cat.nombre}">Tecnologia</span>
+                            </label>
+                        </span>
                     </label>
                     <button type="submit">Registrar evento</button>
                 </form>
