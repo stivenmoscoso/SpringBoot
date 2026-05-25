@@ -20,6 +20,8 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -75,13 +77,40 @@ class EventControllerTest {
 
     @Test
     void findAllReturnsOkWithEmptyList() throws Exception {
-        when(eventService.findAll(any(Pageable.class)))
+        when(eventService.findByFilters(isNull(), isNull(), isNull(), isNull(), isNull(), any(Pageable.class)))
                 .thenReturn(new SliceImpl<EventSummaryDTO>(List.of(), PageRequest.of(0, 8), false));
 
         mockMvc.perform(get("/api/events"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(0)));
 
-        verify(eventService).findAll(any(Pageable.class));
+        verify(eventService).findByFilters(isNull(), isNull(), isNull(), isNull(), isNull(), any(Pageable.class));
+    }
+
+    @Test
+    void findAllPassesAdvancedFiltersToService() throws Exception {
+        when(eventService.findByFilters(eq("Bogota"), eq("Deportes"), eq(300), eq(LocalDate.of(2026, 6, 1)), eq(LocalDate.of(2026, 6, 30)), any(Pageable.class)))
+                .thenReturn(new SliceImpl<>(List.of(
+                        new EventSummaryDTO("Mundial de futbol", LocalDate.of(2026, 6, 11), "Estadio Central", "Bogota")
+                ), PageRequest.of(0, 8), false));
+
+        mockMvc.perform(get("/api/events")
+                        .param("city", "Bogota")
+                        .param("category", "Deportes")
+                        .param("capacity", "300")
+                        .param("startDate", "2026-06-01")
+                        .param("endDate", "2026-06-30"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].nombreEvento").value("Mundial de futbol"))
+                .andExpect(jsonPath("$.content[0].ciudad").value("Bogota"));
+
+        verify(eventService).findByFilters(
+                eq("Bogota"),
+                eq("Deportes"),
+                eq(300),
+                eq(LocalDate.of(2026, 6, 1)),
+                eq(LocalDate.of(2026, 6, 30)),
+                any(Pageable.class)
+        );
     }
 }

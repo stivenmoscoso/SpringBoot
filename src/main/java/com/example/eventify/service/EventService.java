@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -24,6 +25,24 @@ public class EventService {
     public Slice<EventSummaryDTO> findAll(Pageable pageable) {
 
         return eventRepository.findSummaries(pageable);
+    }
+
+    public Slice<EventSummaryDTO> findByFilters(
+            String city,
+            String category,
+            Integer capacity,
+            LocalDate startDate,
+            LocalDate endDate,
+            Pageable pageable
+    ) {
+        return eventRepository.findByFilters(
+                blankToNull(city),
+                blankToNull(category),
+                capacity,
+                startDate,
+                endDate,
+                pageable
+        );
     }
 
     public List<Event> findByNombre(String nombre) {
@@ -56,6 +75,11 @@ public class EventService {
 
     public void deleteById(Long id) {
         Event existingEvent = findById(id);
-        eventRepository.delete(existingEvent);
+        existingEvent.setDeleted(true);
+        eventRepository.save(existingEvent);
+    }
+
+    private String blankToNull(String value) {
+        return value == null || value.isBlank() ? null : value;
     }
 }

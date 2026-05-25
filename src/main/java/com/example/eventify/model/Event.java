@@ -28,6 +28,8 @@ public class Event {
     private LocalDate fecha;
     @Column  (nullable = false, length = 50)
     private String descripcion;
+    @Column
+    private Boolean deleted = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "venue_id")
