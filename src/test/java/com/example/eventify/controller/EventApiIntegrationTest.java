@@ -77,9 +77,11 @@ class EventApiIntegrationTest {
                         .param("sort", "nombre,asc"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(5)))
-                .andExpect(jsonPath("$.content[0].nombre").value("Evento 001"))
-                .andExpect(jsonPath("$.totalPages").value(10))
-                .andExpect(jsonPath("$.totalElements").value(50));
+                .andExpect(jsonPath("$.content[0].nombreEvento").value("Evento 001"))
+                .andExpect(jsonPath("$.totalPages").doesNotExist())
+                .andExpect(jsonPath("$.totalElements").doesNotExist())
+                .andExpect(jsonPath("$.first").value(true))
+                .andExpect(jsonPath("$.last").value(false));
     }
 
     @Test

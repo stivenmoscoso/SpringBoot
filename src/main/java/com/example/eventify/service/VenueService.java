@@ -49,6 +49,7 @@ public class VenueService {
         existingVenue.setNombre(venue.getNombre());
         existingVenue.setDireccion(venue.getDireccion());
         existingVenue.setCapacidad(venue.getCapacidad());
+        existingVenue.setCiudad(venue.getCiudad());
         return venueRepository.save(existingVenue);
     }
 

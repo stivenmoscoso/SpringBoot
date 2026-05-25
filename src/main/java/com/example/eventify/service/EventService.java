@@ -1,12 +1,13 @@
 package com.example.eventify.service;
 
 
+import com.example.eventify.dto.EventSummaryDTO;
 import com.example.eventify.exception.ResourceNotFoundException;
 import com.example.eventify.model.Event;
 import com.example.eventify.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,9 +21,9 @@ public class EventService {
         return eventRepository.findAll();
     }
 
-    public Page<Event> findAll(Pageable pageable) {
+    public Slice<EventSummaryDTO> findAll(Pageable pageable) {
 
-        return eventRepository.findAll(pageable);
+        return eventRepository.findSummaries(pageable);
     }
 
     public List<Event> findByNombre(String nombre) {
@@ -46,6 +47,10 @@ public class EventService {
         existingEvent.setNombre(event.getNombre());
         existingEvent.setFecha(event.getFecha());
         existingEvent.setDescripcion(event.getDescripcion());
+        existingEvent.setVenue(event.getVenue());
+        if (event.getCategories() != null) {
+            existingEvent.setCategories(event.getCategories());
+        }
         return eventRepository.save(existingEvent);
     }
 

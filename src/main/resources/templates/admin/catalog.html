@@ -242,6 +242,7 @@
                     <th>ID</th>
                     <th>Nombre</th>
                     <th>Direccion</th>
+                    <th>Ciudad</th>
                     <th>Capacidad</th>
                 </tr>
                 </thead>
@@ -250,6 +251,7 @@
                     <td th:text="${venue.id}">1</td>
                     <td th:text="${venue.nombre}">Auditorio Central</td>
                     <td th:text="${venue.direccion}">Calle 123</td>
+                    <td th:text="${venue.ciudad}">Bogota</td>
                     <td th:text="${venue.capacidad}">250</td>
                 </tr>
                 </tbody>
@@ -300,6 +302,10 @@
                     <label>
                         Direccion
                         <input type="text" th:field="*{direccion}" maxlength="50" required>
+                    </label>
+                    <label>
+                        Ciudad
+                        <input type="text" th:field="*{ciudad}" maxlength="50" required>
                     </label>
                     <button type="submit">Registrar venue</button>
                 </form>
