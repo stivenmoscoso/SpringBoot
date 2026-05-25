@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eventify Admin</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --background: #f7f8fb;
+            --surface: #ffffff;
+            --border: #d7dce5;
+            --text: #1f2937;
+            --muted: #667085;
+            --primary: #0f766e;
+            --primary-dark: #115e59;
+            --accent: #b45309;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--background);
+            color: var(--text);
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.45;
+        }
+
+        header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 24px clamp(16px, 4vw, 48px);
+        }
+
+        header h1 {
+            margin: 0 0 4px;
+            font-size: clamp(1.75rem, 3vw, 2.4rem);
+        }
+
+        header p {
+            margin: 0;
+            color: var(--muted);
+        }
+
+        main {
+            display: grid;
+            gap: 28px;
+            padding: 28px clamp(16px, 4vw, 48px);
+        }
+
+        section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 22px;
+        }
+
+        .section-title {
+            align-items: baseline;
+            display: flex;
+            gap: 12px;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            margin: 0;
+        }
+
+        .count {
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .notice {
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            border-radius: 6px;
+            color: #065f46;
+            margin: 0;
+            padding: 12px 14px;
+        }
+
+        .empty {
+            border: 1px dashed var(--border);
+            border-radius: 6px;
+            color: var(--muted);
+            margin: 0;
+            padding: 18px;
+            text-align: center;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            border-collapse: collapse;
+            min-width: 620px;
+            width: 100%;
+        }
+
+        th,
+        td {
+            border-bottom: 1px solid var(--border);
+            padding: 12px 10px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            color: var(--muted);
+            font-size: 0.82rem;
+            letter-spacing: 0;
+            text-transform: uppercase;
+        }
+
+        form {
+            display: grid;
+            gap: 14px;
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 14px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        }
+
+        label {
+            color: var(--muted);
+            display: grid;
+            font-size: 0.9rem;
+            gap: 6px;
+        }
+
+        input,
+        textarea {
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font: inherit;
+            min-height: 42px;
+            padding: 9px 10px;
+            width: 100%;
+        }
+
+        textarea {
+            min-height: 92px;
+            resize: vertical;
+        }
+
+        button {
+            background: var(--primary);
+            border: 0;
+            border-radius: 6px;
+            color: #ffffff;
+            cursor: pointer;
+            font: inherit;
+            justify-self: start;
+            min-height: 42px;
+            padding: 0 18px;
+        }
+
+        button:hover {
+            background: var(--primary-dark);
+        }
+
+        .forms {
+            display: grid;
+            gap: 28px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+
+        .form-panel {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 18px;
+        }
+
+        .form-panel h3 {
+            color: var(--accent);
+            font-size: 1rem;
+            margin: 0 0 14px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Administracion del catalogo</h1>
+    <p>Gestion visual de eventos y venues registrados en Eventify.</p>
+</header>
+
+<main>
+    <p class="notice" th:if="${message}" th:text="${message}">Registro completado</p>
+
+    <section aria-labelledby="events-title">
+        <div class="section-title">
+            <h2 id="events-title">Eventos</h2>
+            <span class="count" th:text="${#lists.size(events)} + ' registrados'">0 registrados</span>
+        </div>
+
+        <p class="empty" th:if="${#lists.isEmpty(events)}">Catalogo de eventos vacio.</p>
+
+        <div class="table-wrap" th:unless="${#lists.isEmpty(events)}">
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Fecha</th>
+                    <th>Descripcion</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="event : ${events}">
+                    <td th:text="${event.id}">1</td>
+                    <td th:text="${event.nombre}">Conferencia</td>
+                    <td th:text="${event.fecha}">2026-06-01</td>
+                    <td th:text="${event.descripcion}">Descripcion del evento</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section aria-labelledby="venues-title">
+        <div class="section-title">
+            <h2 id="venues-title">Venues</h2>
+            <span class="count" th:text="${#lists.size(venues)} + ' registrados'">0 registrados</span>
+        </div>
+
+        <p class="empty" th:if="${#lists.isEmpty(venues)}">Catalogo de venues vacio.</p>
+
+        <div class="table-wrap" th:unless="${#lists.isEmpty(venues)}">
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Direccion</th>
+                    <th>Capacidad</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="venue : ${venues}">
+                    <td th:text="${venue.id}">1</td>
+                    <td th:text="${venue.nombre}">Auditorio Central</td>
+                    <td th:text="${venue.direccion}">Calle 123</td>
+                    <td th:text="${venue.capacidad}">250</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section aria-labelledby="forms-title">
+        <div class="section-title">
+            <h2 id="forms-title">Registro</h2>
+        </div>
+
+        <div class="forms">
+            <div class="form-panel">
+                <h3>Nuevo evento</h3>
+                <form th:action="@{/admin/events}" th:object="${event}" method="post">
+                    <div class="form-grid">
+                        <label>
+                            Nombre
+                            <input type="text" th:field="*{nombre}" maxlength="50" required>
+                        </label>
+                        <label>
+                            Fecha
+                            <input type="date" th:field="*{fecha}" required>
+                        </label>
+                    </div>
+                    <label>
+                        Descripcion
+                        <textarea th:field="*{descripcion}" maxlength="50" required></textarea>
+                    </label>
+                    <button type="submit">Registrar evento</button>
+                </form>
+            </div>
+
+            <div class="form-panel">
+                <h3>Nuevo venue</h3>
+                <form th:action="@{/admin/venues}" th:object="${venue}" method="post">
+                    <div class="form-grid">
+                        <label>
+                            Nombre
+                            <input type="text" th:field="*{nombre}" maxlength="50" required>
+                        </label>
+                        <label>
+                            Capacidad
+                            <input type="number" th:field="*{capacidad}" min="1" required>
+                        </label>
+                    </div>
+                    <label>
+                        Direccion
+                        <input type="text" th:field="*{direccion}" maxlength="50" required>
+                    </label>
+                    <button type="submit">Registrar venue</button>
+                </form>
+            </div>
+        </div>
+    </section>
+</main>
+</body>
+</html>
