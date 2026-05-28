@@ -22,6 +22,8 @@ public class CategoryService {
         if (ids == null || ids.isEmpty()) {
             return new HashSet<>();
         }
-        return new HashSet<>(categoryRepository.findAllById(ids));
+        Set<Category> categories = new HashSet<>();
+        categoryRepository.findAllById(ids).forEach(categories::add);
+        return categories;
     }
 }

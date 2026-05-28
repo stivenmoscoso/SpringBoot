@@ -15,17 +15,16 @@ insert into venue (nombre, direccion, capacidad, ciudad) values
 ('Jardin Botanico', 'Avenida Verde #10-40', 900, 'Cali'),
 ('Centro Deportivo Nacional', 'Carrera 30 #63-00', 4000, 'Bogota');
 
-insert into categories (nombre) values
-('Tecnologia'),
-('Musica'),
-('Deportes'),
-('Cultura'),
-('Negocios'),
-('Educacion'),
-('Gastronomia'),
-('Salud');
+insert into categories (name, description) values
+('Conciertos', 'Eventos musicales en vivo'),
+('Talleres', 'Sesiones practicas y formativas'),
+('Conferencias', 'Charlas y ponencias especializadas'),
+('Deportes', 'Competiciones y actividades deportivas'),
+('Gastronomia', 'Experiencias culinarias y degustaciones'),
+('Festivales', 'Celebraciones y encuentros de gran formato'),
+('Teatro', 'Obras escenicas y presentaciones teatrales');
 
-insert into event (nombre, fecha, descripcion, venue_id, deleted)
+insert into event (nombre, fecha, descripcion, venue_id, active)
 select
     'Evento ' || lpad(x, 3, '0'),
     dateadd('DAY', mod(x, 180), date '2026-01-01'),
@@ -40,14 +39,14 @@ select
         else 'Seminario de salud'
     end,
     mod(x - 1, 15) + 1,
-    false
+    true
 from system_range(1, 200);
 
 insert into event_categories (event_id, category_id)
-select x, mod(x - 1, 8) + 1
+select x, mod(x - 1, 7) + 1
 from system_range(1, 200);
 
 insert into event_categories (event_id, category_id)
-select x, mod(x + 2, 8) + 1
+select x, mod(x + 2, 7) + 1
 from system_range(1, 200)
 where mod(x, 3) = 0;

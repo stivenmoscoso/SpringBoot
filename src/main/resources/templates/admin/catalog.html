@@ -280,9 +280,9 @@
                 <select name="category">
                     <option value="">Todas</option>
                     <option th:each="cat : ${categories}"
-                            th:value="${cat.nombre}"
-                            th:text="${cat.nombre}"
-                            th:selected="${cat.nombre == category}">Tecnologia</option>
+                            th:value="${cat.name}"
+                            th:text="${cat.name}"
+                            th:selected="${cat.name == category}">Conciertos</option>
                 </select>
             </label>
             <label>
@@ -407,7 +407,7 @@
                         <span class="checks">
                             <label class="check" th:each="cat : ${categories}">
                                 <input type="checkbox" name="categoryIds" th:value="${cat.id}">
-                                <span th:text="${cat.nombre}">Tecnologia</span>
+                                <span th:text="${cat.name}">Conciertos</span>
                             </label>
                         </span>
                     </label>

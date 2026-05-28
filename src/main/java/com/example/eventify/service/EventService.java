@@ -58,6 +58,7 @@ public class EventService {
         if  (event.getNombre() == null || event.getNombre().isBlank()) {
             throw new IllegalArgumentException("El nombre es obligatorio");
         }
+        event.setActive(true);
         return eventRepository.save(event);
     }
 
@@ -75,7 +76,7 @@ public class EventService {
 
     public void deleteById(Long id) {
         Event existingEvent = findById(id);
-        existingEvent.setDeleted(true);
+        existingEvent.deactivate();
         eventRepository.save(existingEvent);
     }
 
