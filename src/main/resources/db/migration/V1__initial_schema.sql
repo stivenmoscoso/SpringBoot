@@ -3,6 +3,7 @@ create table venue (
     nombre varchar(50) not null,
     direccion varchar(50) not null,
     capacidad integer not null,
+    ciudad varchar(50) not null,
     primary key (id)
 );
 

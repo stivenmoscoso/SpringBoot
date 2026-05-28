@@ -12,7 +12,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table
+@Table (name = "venue")
 
 public class Venue {
     @Id
@@ -22,16 +22,10 @@ public class Venue {
     private String nombre;
     @Column (nullable = false, length = 50)
     private String direccion;
-    @Column (nullable = false, length = 50)
+    @Column (nullable = false)
     private Integer capacidad;
-    @Column(length = 50)
+    @Column(nullable = false, length = 50)
     private String ciudad;
 
-    public Venue(Long id, String nombre, String direccion, Integer capacidad) {
-        this.id = id;
-        this.nombre = nombre;
-        this.direccion = direccion;
-        this.capacidad = capacidad;
-        this.ciudad = "Sin ciudad";
+
     }
-}

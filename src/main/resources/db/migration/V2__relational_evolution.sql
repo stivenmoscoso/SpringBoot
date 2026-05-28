@@ -1,5 +1,3 @@
-alter table venue add column ciudad varchar(50);
-
 alter table event add column venue_id bigint;
 alter table event add column deleted boolean default false;
 
