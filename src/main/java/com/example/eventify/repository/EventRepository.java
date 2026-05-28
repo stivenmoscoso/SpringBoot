@@ -36,14 +36,14 @@ public interface EventRepository extends JpaRepository<Event, Long> {
                 venue.ciudad
             )
             from Event event
-            left join event.venue venue
+            join event.venue venue
             """)
     Slice<EventSummaryDTO> findSummaries(Pageable pageable);
 
     @Query("""
             select new com.example.eventify.dto.EventSummaryDTO(event.nombre, event.fecha, venue.nombre, venue.ciudad)
             from Event event
-            left join event.venue venue
+            join event.venue venue
               where lower(venue.ciudad) = lower(:city)
             """)
     Slice<EventSummaryDTO> findByCity(@Param("city") String city, Pageable pageable);
@@ -51,7 +51,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     @Query("""
             select new com.example.eventify.dto.EventSummaryDTO(event.nombre, event.fecha, venue.nombre, venue.ciudad)
             from Event event
-            left join event.venue venue
+            join event.venue venue
               where venue.capacidad >= :capacity
             """)
     Slice<EventSummaryDTO> findByVenueCapacityGreaterThanEqual(@Param("capacity") Integer capacity, Pageable pageable);
@@ -59,7 +59,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     @Query("""
             select new com.example.eventify.dto.EventSummaryDTO(event.nombre, event.fecha, venue.nombre, venue.ciudad)
             from Event event
-            left join event.venue venue
+            join event.venue venue
              where event.fecha between :startDate and :endDate
             """)
     Slice<EventSummaryDTO> findByDateBetween(
@@ -71,7 +71,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     @Query("""
             select new com.example.eventify.dto.EventSummaryDTO(event.nombre, event.fecha, venue.nombre, venue.ciudad)
             from Event event
-            left join event.venue venue
+            join event.venue venue
               where exists (
                   select category.id
                   from event.categories category
@@ -83,7 +83,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     @Query("""
             select new com.example.eventify.dto.EventSummaryDTO(event.nombre, event.fecha, venue.nombre, venue.ciudad)
             from Event event
-            left join event.venue venue
+            join event.venue venue
               where (:city is null or lower(venue.ciudad) = lower(:city))
               and (:category is null or exists (
                   select categoryFilter.id
