@@ -23,8 +23,23 @@ public class EventService {
     }
 
     public Slice<EventSummaryDTO> findAll(Pageable pageable) {
-
         return eventRepository.findSummaries(pageable);
+    }
+
+    public Slice<EventSummaryDTO> findByCity(String city, Pageable pageable) {
+        return eventRepository.findByCity(blankToNull(city), pageable);
+    }
+
+    public Slice<EventSummaryDTO> findByCategory(String category, Pageable pageable) {
+        return eventRepository.findByCategory(blankToNull(category), pageable);
+    }
+
+    public Slice<EventSummaryDTO> findByCapacity(Integer capacity, Pageable pageable) {
+        return eventRepository.findByCapacityGreaterThanEqual(capacity, pageable);
+    }
+
+    public Slice<EventSummaryDTO> findByDateBetween(LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        return eventRepository.findByDateBetween(startDate, endDate, pageable);
     }
 
     public Slice<EventSummaryDTO> findByFilters(
@@ -35,9 +50,44 @@ public class EventService {
             LocalDate endDate,
             Pageable pageable
     ) {
+        String normalizedCity = blankToNull(city);
+        String normalizedCategory = blankToNull(category);
+
+        if (normalizedCity != null
+                && normalizedCategory == null
+                && capacity == null
+                && startDate == null
+                && endDate == null) {
+            return findByCity(normalizedCity, pageable);
+        }
+
+        if (normalizedCity == null
+                && normalizedCategory != null
+                && capacity == null
+                && startDate == null
+                && endDate == null) {
+            return findByCategory(normalizedCategory, pageable);
+        }
+
+        if (normalizedCity == null
+                && normalizedCategory == null
+                && capacity != null
+                && startDate == null
+                && endDate == null) {
+            return findByCapacity(capacity, pageable);
+        }
+
+        if (normalizedCity == null
+                && normalizedCategory == null
+                && capacity == null
+                && startDate != null
+                && endDate != null) {
+            return findByDateBetween(startDate, endDate, pageable);
+        }
+
         return eventRepository.findByFilters(
-                blankToNull(city),
-                blankToNull(category),
+                normalizedCity,
+                normalizedCategory,
                 capacity,
                 startDate,
                 endDate,

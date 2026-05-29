@@ -17,11 +17,11 @@ import java.util.Optional;
 @Repository
 public interface EventRepository extends JpaRepository<Event, Long> {
     @EntityGraph(attributePaths = {"venue", "categories"})
-    @Query("select event from Event event")
+    @Query("select event from Event event order by event.fecha desc")
     List<Event> findAll();
 
     @EntityGraph(attributePaths = {"venue", "categories"})
-    @Query("select event from Event event where event.nombre = :nombre")
+    @Query("select event from Event event where event.nombre = :nombre order by event.fecha desc")
     List<Event> findByNombre(@Param("nombre") String nombre);
 
     @EntityGraph(attributePaths = {"venue", "categories"})
@@ -37,6 +37,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             )
             from Event event
             join event.venue venue
+            order by event.fecha desc
             """)
     Slice<EventSummaryDTO> findSummaries(Pageable pageable);
 
@@ -45,6 +46,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             from Event event
             join event.venue venue
               where lower(venue.ciudad) = lower(:city)
+            order by event.fecha desc
             """)
     Slice<EventSummaryDTO> findByCity(@Param("city") String city, Pageable pageable);
 
@@ -53,14 +55,16 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             from Event event
             join event.venue venue
               where venue.capacidad >= :capacity
+            order by event.fecha desc
             """)
-    Slice<EventSummaryDTO> findByVenueCapacityGreaterThanEqual(@Param("capacity") Integer capacity, Pageable pageable);
+    Slice<EventSummaryDTO> findByCapacityGreaterThanEqual(@Param("capacity") Integer capacity, Pageable pageable);
 
     @Query("""
             select new com.example.eventify.dto.EventSummaryDTO(event.nombre, event.fecha, venue.nombre, venue.ciudad)
             from Event event
             join event.venue venue
              where event.fecha between :startDate and :endDate
+            order by event.fecha desc
             """)
     Slice<EventSummaryDTO> findByDateBetween(
             @Param("startDate") LocalDate startDate,
@@ -77,6 +81,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
                   from event.categories category
                   where lower(category.name) = lower(:category)
               )
+            order by event.fecha desc
             """)
     Slice<EventSummaryDTO> findByCategory(@Param("category") String category, Pageable pageable);
 
@@ -93,6 +98,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
               and (:capacity is null or venue.capacidad >= :capacity)
               and (:startDate is null or event.fecha >= :startDate)
               and (:endDate is null or event.fecha <= :endDate)
+            order by event.fecha desc
             """)
     Slice<EventSummaryDTO> findByFilters(
             @Param("city") String city,

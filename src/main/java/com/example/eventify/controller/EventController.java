@@ -33,8 +33,9 @@ public class EventController {
     @Operation(
             summary = "Listar eventos con filtros avanzados",
             description = """
-                    Devuelve Slice<EventSummaryDTO>, un record plano para listados masivos.
+                    Devuelve un `Slice<EventSummaryDTO>` basado en records para listados masivos.
                     Los filtros relacionales se aplican sobre el venue y las categorias asociadas.
+                    El resultado se ordena cronologicamente por fecha descendente.
                     Los eventos eliminados logicamente no se incluyen en el resultado.
                     """
     )
@@ -49,7 +50,8 @@ public class EventController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @Parameter(description = "Fecha final inclusiva del evento. Formato ISO yyyy-MM-dd.", example = "2026-06-30")
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @ParameterObject @PageableDefault(page = 0, size = 8, sort = "nombre") Pageable pageable
+            @Parameter(description = "Paginacion y orden adicional. Si se usa, se combina con el orden cronologico descendente del repositorio.", hidden = true)
+            @ParameterObject @PageableDefault(page = 0, size = 8, sort = "fecha", direction = org.springframework.data.domain.Sort.Direction.DESC) Pageable pageable
     ) {
         return ResponseEntity.ok(eventService.findByFilters(city, category, capacity, startDate, endDate, pageable));
     }
@@ -89,7 +91,7 @@ public class EventController {
             @ApiResponse(responseCode = "404", description = "Evento no encontrado")
     })
     public ResponseEntity<Void> deleteById(
-            @Parameter(description = "Identificador del evento activo que se marcara como eliminado logicamente.", example = "1")
+            @Parameter(description = "Identificador del evento activo que se marcara como eliminado logicamente. Si ya fue desactivado, la consulta no lo recupera.", example = "1")
             @PathVariable Long id
     ) {
         eventService.deleteById(id);
