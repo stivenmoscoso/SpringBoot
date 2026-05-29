@@ -45,7 +45,7 @@ public class AdminCatalogController {
             @RequestParam(defaultValue = "12") int size,
             Model model
     ) {
-        PageRequest pageRequest = PageRequest.of(Math.max(page, 0), Math.max(size, 1), Sort.by("nombre").ascending());
+        PageRequest pageRequest = PageRequest.of(Math.max(page, 0), Math.max(size, 1), Sort.by(Sort.Direction.DESC, "fecha"));
         Slice<EventSummaryDTO> events = eventService.findByFilters(city, category, capacity, startDate, endDate, pageRequest);
         model.addAttribute("events", events);
         model.addAttribute("venues", venueService.findAll());
