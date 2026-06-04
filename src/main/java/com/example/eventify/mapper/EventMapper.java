@@ -40,7 +40,7 @@ public interface EventMapper {
 
     default Venue map(Long venueId, @Context VenueRepository venueRepository) {
         if (venueId == null) {
-            return null;
+            throw new ResourceNotFoundException("Venue no encontrado");
         }
         return venueRepository.findById(venueId)
                 .orElseThrow(() -> new ResourceNotFoundException("Venue no encontrado"));

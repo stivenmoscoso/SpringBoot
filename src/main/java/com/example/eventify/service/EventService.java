@@ -4,6 +4,7 @@ package com.example.eventify.service;
 import com.example.eventify.dto.EventCreateDTO;
 import com.example.eventify.dto.EventResponseDTO;
 import com.example.eventify.dto.EventSummaryDTO;
+import com.example.eventify.exception.BusinessRuleViolationException;
 import com.example.eventify.exception.ResourceNotFoundException;
 import com.example.eventify.model.Event;
 import com.example.eventify.mapper.EventMapper;
@@ -121,7 +122,7 @@ public class EventService {
 
     public EventResponseDTO update(Long id, EventCreateDTO eventDTO) {
         if (eventDTO.id() != null && !id.equals(eventDTO.id())) {
-            throw new IllegalArgumentException("El id del path y el id del cuerpo deben coincidir");
+            throw new BusinessRuleViolationException("El id del path y el id del cuerpo deben coincidir");
         }
         Event existingEvent = findEntityById(id);
         eventMapper.updateEntity(eventDTO, existingEvent, venueRepository, categoryRepository);

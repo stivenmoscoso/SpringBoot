@@ -2,6 +2,8 @@ package com.example.eventify.service;
 
 import com.example.eventify.dto.VenueCreateDTO;
 import com.example.eventify.dto.VenueResponseDTO;
+import com.example.eventify.exception.BusinessRuleViolationException;
+import com.example.eventify.exception.DuplicateResourceException;
 import com.example.eventify.exception.ResourceNotFoundException;
 import com.example.eventify.mapper.VenueMapper;
 import com.example.eventify.model.Venue;
@@ -38,14 +40,22 @@ public class VenueService {
     }
 
     public VenueResponseDTO create(VenueCreateDTO venueDTO) {
+        if (!venueRepository.findByNombre(venueDTO.nombre()).isEmpty()) {
+            throw new DuplicateResourceException("Ya existe un venue con ese nombre");
+        }
         return venueMapper.toResponse(venueRepository.save(venueMapper.toEntity(venueDTO)));
     }
 
     public VenueResponseDTO update(Long id, VenueCreateDTO venueDTO) {
         if (venueDTO.id() != null && !id.equals(venueDTO.id())) {
-            throw new IllegalArgumentException("El id del path y el id del cuerpo deben coincidir");
+            throw new BusinessRuleViolationException("El id del path y el id del cuerpo deben coincidir");
         }
         Venue existingVenue = findEntityById(id);
+        boolean duplicateName = venueRepository.findByNombre(venueDTO.nombre()).stream()
+                .anyMatch(venue -> !venue.getId().equals(id));
+        if (duplicateName) {
+            throw new DuplicateResourceException("Ya existe un venue con ese nombre");
+        }
         venueMapper.updateEntity(venueDTO, existingVenue);
         return venueMapper.toResponse(venueRepository.save(existingVenue));
     }
