@@ -1,5 +1,7 @@
 package com.example.eventify.service;
 
+import com.example.eventify.dto.VenueCreateDTO;
+import com.example.eventify.dto.VenueResponseDTO;
 import com.example.eventify.exception.ResourceNotFoundException;
 import com.example.eventify.model.Venue;
 import com.example.eventify.repository.VenueRepository;
@@ -23,38 +25,51 @@ public class VenueService {
         return venueRepository.findAll(pageable);
     }
 
-    public List<Venue> findByNombre(String nombre) {
-        return venueRepository.findByNombre(nombre);
+    public List<VenueResponseDTO> findByNombre(String nombre) {
+        return venueRepository.findByNombre(nombre).stream()
+                .map(this::toResponse)
+                .toList();
     }
 
-    public Venue findById(Long id) {
+    public VenueResponseDTO findById(Long id) {
+        return toResponse(findEntityById(id));
+    }
+
+    public VenueResponseDTO create(VenueCreateDTO venueDTO) {
+        Venue venue = new Venue();
+        venue.setNombre(venueDTO.nombre());
+        venue.setDireccion(venueDTO.direccion());
+        venue.setCapacidad(venueDTO.capacidad());
+        venue.setCiudad(venueDTO.ciudad());
+        return toResponse(venueRepository.save(venue));
+    }
+
+    public VenueResponseDTO update(Long id, VenueCreateDTO venueDTO) {
+        Venue existingVenue = findEntityById(id);
+        existingVenue.setNombre(venueDTO.nombre());
+        existingVenue.setDireccion(venueDTO.direccion());
+        existingVenue.setCapacidad(venueDTO.capacidad());
+        existingVenue.setCiudad(venueDTO.ciudad());
+        return toResponse(venueRepository.save(existingVenue));
+    }
+
+    public void deleteById(Long id) {
+        Venue existingVenue = findEntityById(id);
+        venueRepository.delete(existingVenue);
+    }
+
+    private Venue findEntityById(Long id) {
         return venueRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Venue no encontrado"));
     }
 
-    public Venue create(Venue venue) {
-        if (venue.getNombre() == null || venue.getNombre().isBlank()) {
-            throw new IllegalArgumentException("El nombre es obligatorio");
-        }
-
-        if (venue.getCapacidad() == null || venue.getCapacidad() <= 0) {
-            throw new IllegalArgumentException("La capacidad debe ser mayor que cero");
-        }
-
-        return venueRepository.save(venue);
-    }
-
-    public Venue update(Long id, Venue venue) {
-        Venue existingVenue = findById(id);
-        existingVenue.setNombre(venue.getNombre());
-        existingVenue.setDireccion(venue.getDireccion());
-        existingVenue.setCapacidad(venue.getCapacidad());
-        existingVenue.setCiudad(venue.getCiudad());
-        return venueRepository.save(existingVenue);
-    }
-
-    public void deleteById(Long id) {
-        Venue existingVenue = findById(id);
-        venueRepository.delete(existingVenue);
+    private VenueResponseDTO toResponse(Venue venue) {
+        return new VenueResponseDTO(
+                venue.getId(),
+                venue.getNombre(),
+                venue.getDireccion(),
+                venue.getCapacidad(),
+                venue.getCiudad()
+        );
     }
 }

@@ -1,10 +1,15 @@
 package com.example.eventify.service;
 
 
+import com.example.eventify.dto.EventCreateDTO;
+import com.example.eventify.dto.EventResponseDTO;
 import com.example.eventify.dto.EventSummaryDTO;
 import com.example.eventify.exception.ResourceNotFoundException;
+import com.example.eventify.model.Category;
 import com.example.eventify.model.Event;
+import com.example.eventify.model.Venue;
 import com.example.eventify.repository.EventRepository;
+import com.example.eventify.repository.VenueRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -12,11 +17,15 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class EventService {
     private final EventRepository eventRepository;
+    private final VenueRepository venueRepository;
+    private final CategoryService categoryService;
 
     public List<Event> findAll() {
         return eventRepository.findAll();
@@ -95,42 +104,75 @@ public class EventService {
         );
     }
 
-    public List<Event> findByNombre(String nombre) {
-        return eventRepository.findByNombre(nombre);
+    public List<EventResponseDTO> findByNombre(String nombre) {
+        return eventRepository.findByNombre(nombre).stream()
+                .map(this::toResponse)
+                .toList();
     }
 
-    public Event findById(Long id) {
-        return eventRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Evento no encontrado"));
+    public EventResponseDTO findById(Long id) {
+        return toResponse(findEntityById(id));
     }
 
-    public Event create(Event event) {
-        if  (event.getNombre() == null || event.getNombre().isBlank()) {
-            throw new IllegalArgumentException("El nombre es obligatorio");
-        }
+    public EventResponseDTO create(EventCreateDTO eventDTO) {
+        Event event = new Event();
+        event.setNombre(eventDTO.nombre());
+        event.setFecha(eventDTO.fecha());
+        event.setDescripcion(eventDTO.descripcion());
+        event.setVenue(findVenue(eventDTO.venueId()));
+        event.setCategories(categoryService.findAllById(eventDTO.categoryIds()));
         event.setActive(true);
-        return eventRepository.save(event);
+        return toResponse(eventRepository.save(event));
     }
 
-    public Event update(Long id, Event event) {
-        Event existingEvent = findById(id);
-        existingEvent.setNombre(event.getNombre());
-        existingEvent.setFecha(event.getFecha());
-        existingEvent.setDescripcion(event.getDescripcion());
-        existingEvent.setVenue(event.getVenue());
-        if (event.getCategories() != null) {
-            existingEvent.setCategories(event.getCategories());
-        }
-        return eventRepository.save(existingEvent);
+    public EventResponseDTO update(Long id, EventCreateDTO eventDTO) {
+        Event existingEvent = findEntityById(id);
+        existingEvent.setNombre(eventDTO.nombre());
+        existingEvent.setFecha(eventDTO.fecha());
+        existingEvent.setDescripcion(eventDTO.descripcion());
+        existingEvent.setVenue(findVenue(eventDTO.venueId()));
+        Set<Category> categories = categoryService.findAllById(eventDTO.categoryIds());
+        existingEvent.setCategories(categories);
+        return toResponse(eventRepository.save(existingEvent));
     }
 
     public void deleteById(Long id) {
-        Event existingEvent = findById(id);
+        Event existingEvent = findEntityById(id);
         existingEvent.deactivate();
         eventRepository.save(existingEvent);
     }
 
     private String blankToNull(String value) {
         return value == null || value.isBlank() ? null : value;
+    }
+
+    private Venue findVenue(Long venueId) {
+        if (venueId == null) {
+            throw new IllegalArgumentException("El venue es obligatorio");
+        }
+        return venueRepository.findById(venueId)
+                .orElseThrow(() -> new ResourceNotFoundException("Venue no encontrado"));
+    }
+
+    private Event findEntityById(Long id) {
+        return eventRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Evento no encontrado"));
+    }
+
+    private EventResponseDTO toResponse(Event event) {
+        List<String> categoryNames = event.getCategories() == null
+                ? List.of()
+                : event.getCategories().stream()
+                .map(Category::getName)
+                .collect(Collectors.toList());
+
+        return new EventResponseDTO(
+                event.getId(),
+                event.getNombre(),
+                event.getFecha(),
+                event.getDescripcion(),
+                event.getVenue() != null ? event.getVenue().getNombre() : null,
+                categoryNames
+        );
     }
 }

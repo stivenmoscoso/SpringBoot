@@ -1,8 +1,9 @@
 package com.example.eventify.controller;
 
 
+import com.example.eventify.dto.EventCreateDTO;
+import com.example.eventify.dto.EventResponseDTO;
 import com.example.eventify.dto.EventSummaryDTO;
-import com.example.eventify.model.Event;
 import com.example.eventify.service.EventService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -58,7 +59,7 @@ public class EventController {
 
     @GetMapping("/consulta")
     @Operation(summary = "Consultar eventos por nombre")
-    public ResponseEntity<List<Event>> findByNombre(@RequestParam String nombre) {
+    public ResponseEntity<List<EventResponseDTO>> findByNombre(@RequestParam String nombre) {
         return ResponseEntity.ok(eventService.findByNombre(nombre));
     }
 
@@ -68,13 +69,13 @@ public class EventController {
             @ApiResponse(responseCode = "200", description = "Evento encontrado"),
             @ApiResponse(responseCode = "404", description = "Evento no encontrado")
     })
-    public ResponseEntity<Event> findById(@PathVariable Long id) {
+    public ResponseEntity<EventResponseDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(eventService.findById(id));
     }
 
     @PostMapping
     @Operation(summary = "Registrar evento")
-    public ResponseEntity<Event> create(@RequestBody Event newEvent) {
+    public ResponseEntity<EventResponseDTO> create(@RequestBody EventCreateDTO newEvent) {
         return ResponseEntity.status(HttpStatus.CREATED).body(eventService.create(newEvent));
     }
 
@@ -104,7 +105,7 @@ public class EventController {
             @ApiResponse(responseCode = "200", description = "Evento actualizado"),
             @ApiResponse(responseCode = "404", description = "Evento no encontrado")
     })
-    public ResponseEntity<Event> update(@PathVariable Long id, @RequestBody Event newEvent) {
+    public ResponseEntity<EventResponseDTO> update(@PathVariable Long id, @RequestBody EventCreateDTO newEvent) {
         return ResponseEntity.ok(eventService.update(id, newEvent));
     }
 }

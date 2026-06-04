@@ -1,6 +1,7 @@
 package com.example.eventify.controller;
 
-import com.example.eventify.model.Venue;
+import com.example.eventify.dto.VenueCreateDTO;
+import com.example.eventify.dto.VenueResponseDTO;
 import com.example.eventify.service.VenueService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -26,13 +27,13 @@ public class VenueController {
 
     @GetMapping
     @Operation(summary = "Listar venues")
-    public ResponseEntity<Page<Venue>> findAll(@ParameterObject @PageableDefault(page = 0, size = 8, sort = "nombre") Pageable pageable) {
+    public ResponseEntity<Page<com.example.eventify.model.Venue>> findAll(@ParameterObject @PageableDefault(page = 0, size = 8, sort = "nombre") Pageable pageable) {
         return ResponseEntity.ok(venueService.findAll(pageable));
     }
 
     @GetMapping("/consulta")
     @Operation(summary = "Consultar venues por nombre")
-    public ResponseEntity<List<Venue>> findByNombre(@RequestParam String nombre) {
+    public ResponseEntity<List<VenueResponseDTO>> findByNombre(@RequestParam String nombre) {
         return ResponseEntity.ok(venueService.findByNombre(nombre));
     }
 
@@ -42,13 +43,13 @@ public class VenueController {
             @ApiResponse(responseCode = "200", description = "Venue encontrado"),
             @ApiResponse(responseCode = "404", description = "Venue no encontrado")
     })
-    public ResponseEntity<Venue> findById(@PathVariable Long id) {
+    public ResponseEntity<VenueResponseDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(venueService.findById(id));
     }
 
     @PostMapping
     @Operation(summary = "Registrar venue")
-    public ResponseEntity<Venue> create(@RequestBody Venue newVenue) {
+    public ResponseEntity<VenueResponseDTO> create(@RequestBody VenueCreateDTO newVenue) {
         return ResponseEntity.status(HttpStatus.CREATED).body(venueService.create(newVenue));
     }
 
@@ -58,7 +59,7 @@ public class VenueController {
             @ApiResponse(responseCode = "200", description = "Venue actualizado"),
             @ApiResponse(responseCode = "404", description = "Venue no encontrado")
     })
-    public ResponseEntity<Venue> update(@PathVariable Long id, @RequestBody Venue newVenue) {
+    public ResponseEntity<VenueResponseDTO> update(@PathVariable Long id, @RequestBody VenueCreateDTO newVenue) {
         return ResponseEntity.ok(venueService.update(id, newVenue));
     }
 
