@@ -12,6 +12,7 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,7 +50,7 @@ public class VenueController {
 
     @PostMapping
     @Operation(summary = "Registrar venue")
-    public ResponseEntity<VenueResponseDTO> create(@RequestBody VenueCreateDTO newVenue) {
+    public ResponseEntity<VenueResponseDTO> create(@Valid @RequestBody VenueCreateDTO newVenue) {
         return ResponseEntity.status(HttpStatus.CREATED).body(venueService.create(newVenue));
     }
 
@@ -59,7 +60,7 @@ public class VenueController {
             @ApiResponse(responseCode = "200", description = "Venue actualizado"),
             @ApiResponse(responseCode = "404", description = "Venue no encontrado")
     })
-    public ResponseEntity<VenueResponseDTO> update(@PathVariable Long id, @RequestBody VenueCreateDTO newVenue) {
+    public ResponseEntity<VenueResponseDTO> update(@PathVariable Long id, @Valid @RequestBody VenueCreateDTO newVenue) {
         return ResponseEntity.ok(venueService.update(id, newVenue));
     }
 

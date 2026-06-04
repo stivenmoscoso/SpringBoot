@@ -120,6 +120,9 @@ public class EventService {
     }
 
     public EventResponseDTO update(Long id, EventCreateDTO eventDTO) {
+        if (eventDTO.id() != null && !id.equals(eventDTO.id())) {
+            throw new IllegalArgumentException("El id del path y el id del cuerpo deben coincidir");
+        }
         Event existingEvent = findEntityById(id);
         eventMapper.updateEntity(eventDTO, existingEvent, venueRepository, categoryRepository);
         return eventMapper.toResponse(eventRepository.save(existingEvent));

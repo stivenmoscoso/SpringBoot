@@ -42,6 +42,9 @@ public class VenueService {
     }
 
     public VenueResponseDTO update(Long id, VenueCreateDTO venueDTO) {
+        if (venueDTO.id() != null && !id.equals(venueDTO.id())) {
+            throw new IllegalArgumentException("El id del path y el id del cuerpo deben coincidir");
+        }
         Venue existingVenue = findEntityById(id);
         venueMapper.updateEntity(venueDTO, existingVenue);
         return venueMapper.toResponse(venueRepository.save(existingVenue));

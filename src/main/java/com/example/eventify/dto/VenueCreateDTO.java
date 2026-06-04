@@ -3,11 +3,16 @@ package com.example.eventify.dto;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Size;
 
 public record VenueCreateDTO(
+        @Null( message = "No debes enviar el id al crear un venue")
+        @NotNull(message = "El id es obligatorio al actualizar un venue")
+        Long id,
+
         @NotBlank(message = "El nombre del venue es obligatorio")
-        @Size(min = 2, max = 50, message = "El nombre debe tener de 2 a 50 caracteres")
+        @Size(min = 3, max = 100, message = "El nombre debe tener de 3 a 100 caracteres")
         String nombre,
 
         @NotBlank(message = "La direccion es obligatoria")

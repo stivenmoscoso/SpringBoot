@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -75,7 +76,7 @@ public class EventController {
 
     @PostMapping
     @Operation(summary = "Registrar evento")
-    public ResponseEntity<EventResponseDTO> create(@RequestBody EventCreateDTO newEvent) {
+    public ResponseEntity<EventResponseDTO> create(@Valid @RequestBody EventCreateDTO newEvent) {
         return ResponseEntity.status(HttpStatus.CREATED).body(eventService.create(newEvent));
     }
 
@@ -105,7 +106,7 @@ public class EventController {
             @ApiResponse(responseCode = "200", description = "Evento actualizado"),
             @ApiResponse(responseCode = "404", description = "Evento no encontrado")
     })
-    public ResponseEntity<EventResponseDTO> update(@PathVariable Long id, @RequestBody EventCreateDTO newEvent) {
+    public ResponseEntity<EventResponseDTO> update(@PathVariable Long id, @Valid @RequestBody EventCreateDTO newEvent) {
         return ResponseEntity.ok(eventService.update(id, newEvent));
     }
 }
