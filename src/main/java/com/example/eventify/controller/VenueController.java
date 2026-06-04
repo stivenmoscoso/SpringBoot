@@ -27,7 +27,7 @@ public class VenueController {
 
     @GetMapping
     @Operation(summary = "Listar venues")
-    public ResponseEntity<Page<com.example.eventify.model.Venue>> findAll(@ParameterObject @PageableDefault(page = 0, size = 8, sort = "nombre") Pageable pageable) {
+    public ResponseEntity<Page<VenueResponseDTO>> findAll(@ParameterObject @PageableDefault(page = 0, size = 8, sort = "nombre") Pageable pageable) {
         return ResponseEntity.ok(venueService.findAll(pageable));
     }
 
