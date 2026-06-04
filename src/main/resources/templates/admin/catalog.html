@@ -85,6 +85,12 @@
             padding: 12px 14px;
         }
 
+        .notice.error {
+            background: #fef2f2;
+            border-color: #fca5a5;
+            color: #991b1b;
+        }
+
         .empty {
             border: 1px dashed var(--border);
             border-radius: 6px;
@@ -147,6 +153,17 @@
             min-height: 42px;
             padding: 9px 10px;
             width: 100%;
+        }
+
+        .campo-invalido {
+            border-color: #dc2626;
+            box-shadow: 0 0 0 1px #dc2626;
+        }
+
+        .field-error {
+            color: #b91c1c;
+            font-size: 0.85rem;
+            margin-top: 4px;
         }
 
         .filters {
@@ -263,6 +280,7 @@
 
 <main>
     <p class="notice" th:if="${message}" th:text="${message}">Registro completado</p>
+    <p class="notice error" th:if="${error}" th:text="${error}">Error al procesar la accion</p>
 
     <section aria-labelledby="events-title">
         <div class="section-title">
@@ -382,31 +400,35 @@
                     <div class="form-grid">
                         <label>
                             Nombre
-                            <input type="text" th:field="*{nombre}" maxlength="50" required>
+                            <input type="text" th:field="*{nombre}" maxlength="100" th:errorclass="campo-invalido">
+                            <span class="field-error" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></span>
                         </label>
                         <label>
                             Fecha
-                            <input type="date" th:field="*{fecha}" required>
+                            <input type="date" th:field="*{fecha}" th:errorclass="campo-invalido">
+                            <span class="field-error" th:if="${#fields.hasErrors('fecha')}" th:errors="*{fecha}"></span>
                         </label>
                     </div>
                     <label>
                         Descripcion
-                        <textarea th:field="*{descripcion}" maxlength="50" required></textarea>
+                        <textarea th:field="*{descripcion}" maxlength="500" th:errorclass="campo-invalido"></textarea>
+                        <span class="field-error" th:if="${#fields.hasErrors('descripcion')}" th:errors="*{descripcion}"></span>
                     </label>
                     <label>
                         Venue
-                        <select name="venueId" required>
+                        <select th:field="*{venueId}" th:errorclass="campo-invalido">
                             <option value="">Seleccionar venue</option>
                             <option th:each="venueOption : ${venues}"
                                     th:value="${venueOption.id}"
                                     th:text="${venueOption.nombre + ' - ' + venueOption.ciudad}">Auditorio Central</option>
                         </select>
+                        <span class="field-error" th:if="${#fields.hasErrors('venueId')}" th:errors="*{venueId}"></span>
                     </label>
                     <label>
                         Categorias
                         <span class="checks">
                             <label class="check" th:each="cat : ${categories}">
-                                <input type="checkbox" name="categoryIds" th:value="${cat.id}">
+                                <input type="checkbox" th:field="*{categoryIds}" th:value="${cat.id}">
                                 <span th:text="${cat.name}">Conciertos</span>
                             </label>
                         </span>
@@ -421,20 +443,24 @@
                     <div class="form-grid">
                         <label>
                             Nombre
-                            <input type="text" th:field="*{nombre}" maxlength="50" required>
+                            <input type="text" th:field="*{nombre}" maxlength="100" th:errorclass="campo-invalido">
+                            <span class="field-error" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></span>
                         </label>
                         <label>
                             Capacidad
-                            <input type="number" th:field="*{capacidad}" min="1" required>
+                            <input type="number" th:field="*{capacidad}" min="1" th:errorclass="campo-invalido">
+                            <span class="field-error" th:if="${#fields.hasErrors('capacidad')}" th:errors="*{capacidad}"></span>
                         </label>
                     </div>
                     <label>
                         Direccion
-                        <input type="text" th:field="*{direccion}" maxlength="50" required>
+                        <input type="text" th:field="*{direccion}" maxlength="50" th:errorclass="campo-invalido">
+                        <span class="field-error" th:if="${#fields.hasErrors('direccion')}" th:errors="*{direccion}"></span>
                     </label>
                     <label>
                         Ciudad
-                        <input type="text" th:field="*{ciudad}" maxlength="50" required>
+                        <input type="text" th:field="*{ciudad}" maxlength="50" th:errorclass="campo-invalido">
+                        <span class="field-error" th:if="${#fields.hasErrors('ciudad')}" th:errors="*{ciudad}"></span>
                     </label>
                     <button type="submit">Registrar venue</button>
                 </form>

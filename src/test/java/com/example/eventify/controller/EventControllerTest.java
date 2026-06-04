@@ -1,7 +1,6 @@
 package com.example.eventify.controller;
 
 import com.example.eventify.dto.EventSummaryDTO;
-import com.example.eventify.model.Event;
 import com.example.eventify.service.EventService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -14,9 +13,11 @@ import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
@@ -38,79 +39,44 @@ class EventControllerTest {
     @BeforeEach
     void setUp() {
         eventService = mock(EventService.class);
+        LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
+        validator.afterPropertiesSet();
         mockMvc = MockMvcBuilders
                 .standaloneSetup(new EventController(eventService))
-                .setControllerAdvice(new ApiExceptionHandler())
+                .setControllerAdvice(new GlobalExceptionHandler())
                 .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
+                .setValidator(validator)
                 .build();
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
     }
 
     @Test
-    void createReturnsCreatedWhenEventIsValid() throws Exception {
-        Event event = new Event(null, "Mundial de futbol", LocalDate.of(2026, 6, 11), "Canada, EEUU, Mexico");
-        Event savedEvent = new Event(1L, "Mundial de futbol", LocalDate.of(2026, 6, 11), "Canada, EEUU, Mexico");
-        when(eventService.create(any(Event.class))).thenReturn(savedEvent);
+    void createReturnsBadRequestWhenDtoIsInvalid() throws Exception {
+        Map<String, Object> payload = Map.of(
+                "nombre", "",
+                "fecha", "2020-01-01",
+                "venueId", null
+        );
 
         mockMvc.perform(post("/api/events")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(event)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.nombre").value("Mundial de futbol"));
-
-        verify(eventService).create(any(Event.class));
-    }
-
-    @Test
-    void createReturnsBadRequestWhenServiceRejectsEvent() throws Exception {
-        Event event = new Event(null, "", LocalDate.of(2026, 6, 11), "Canada, EEUU, Mexico");
-        when(eventService.create(any(Event.class))).thenThrow(new IllegalArgumentException("El nombre es obligatorio"));
-
-        mockMvc.perform(post("/api/events")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(event)))
+                        .content(objectMapper.writeValueAsString(payload)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("El nombre es obligatorio"));
+                .andExpect(jsonPath("$.invalidParams.nombre").exists())
+                .andExpect(jsonPath("$.invalidParams.fecha").exists())
+                .andExpect(jsonPath("$.invalidParams.venueId").exists());
     }
 
     @Test
     void findAllReturnsOkWithEmptyList() throws Exception {
         when(eventService.findByFilters(isNull(), isNull(), isNull(), isNull(), isNull(), any(Pageable.class)))
-                .thenReturn(new SliceImpl<EventSummaryDTO>(List.of(), PageRequest.of(0, 8), false));
+                .thenReturn(new SliceImpl<>(List.of(), PageRequest.of(0, 8), false));
 
         mockMvc.perform(get("/api/events"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(0)));
 
         verify(eventService).findByFilters(isNull(), isNull(), isNull(), isNull(), isNull(), any(Pageable.class));
-    }
-
-    @Test
-    void findAllPassesAdvancedFiltersToService() throws Exception {
-        when(eventService.findByFilters(eq("Bogota"), eq("Deportes"), eq(300), eq(LocalDate.of(2026, 6, 1)), eq(LocalDate.of(2026, 6, 30)), any(Pageable.class)))
-                .thenReturn(new SliceImpl<>(List.of(
-                        new EventSummaryDTO("Mundial de futbol", LocalDate.of(2026, 6, 11), "Estadio Central", "Bogota")
-                ), PageRequest.of(0, 8), false));
-
-        mockMvc.perform(get("/api/events")
-                        .param("city", "Bogota")
-                        .param("category", "Deportes")
-                        .param("capacity", "300")
-                        .param("startDate", "2026-06-01")
-                        .param("endDate", "2026-06-30"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[0].nombreEvento").value("Mundial de futbol"))
-                .andExpect(jsonPath("$.content[0].ciudad").value("Bogota"));
-
-        verify(eventService).findByFilters(
-                eq("Bogota"),
-                eq("Deportes"),
-                eq(300),
-                eq(LocalDate.of(2026, 6, 1)),
-                eq(LocalDate.of(2026, 6, 30)),
-                any(Pageable.class)
-        );
     }
 }

@@ -1,25 +1,34 @@
 package com.example.eventify.controller;
 
-
 import com.example.eventify.dto.EventCreateDTO;
 import com.example.eventify.dto.EventResponseDTO;
 import com.example.eventify.dto.EventSummaryDTO;
 import com.example.eventify.service.EventService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
-import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -76,6 +85,15 @@ public class EventController {
 
     @PostMapping
     @Operation(summary = "Registrar evento")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Evento creado"),
+            @ApiResponse(responseCode = "400", description = "Validacion fallida",
+                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = org.springframework.http.ProblemDetail.class))),
+            @ApiResponse(responseCode = "409", description = "Recurso duplicado",
+                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = org.springframework.http.ProblemDetail.class))),
+            @ApiResponse(responseCode = "500", description = "Error inesperado",
+                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = org.springframework.http.ProblemDetail.class)))
+    })
     public ResponseEntity<EventResponseDTO> create(@Valid @RequestBody EventCreateDTO newEvent) {
         return ResponseEntity.status(HttpStatus.CREATED).body(eventService.create(newEvent));
     }
@@ -92,10 +110,7 @@ public class EventController {
             @ApiResponse(responseCode = "204", description = "Evento eliminado"),
             @ApiResponse(responseCode = "404", description = "Evento no encontrado")
     })
-    public ResponseEntity<Void> deleteById(
-            @Parameter(description = "Identificador del evento activo que se marcara como eliminado logicamente. Si ya fue desactivado, la consulta no lo recupera.", example = "1")
-            @PathVariable Long id
-    ) {
+    public ResponseEntity<Void> deleteById(@PathVariable Long id) {
         eventService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
@@ -104,7 +119,13 @@ public class EventController {
     @Operation(summary = "Actualizar evento")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Evento actualizado"),
-            @ApiResponse(responseCode = "404", description = "Evento no encontrado")
+            @ApiResponse(responseCode = "400", description = "Validacion fallida",
+                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = org.springframework.http.ProblemDetail.class))),
+            @ApiResponse(responseCode = "404", description = "Evento no encontrado"),
+            @ApiResponse(responseCode = "409", description = "Recurso duplicado",
+                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = org.springframework.http.ProblemDetail.class))),
+            @ApiResponse(responseCode = "422", description = "Violacion de regla de negocio",
+                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = org.springframework.http.ProblemDetail.class)))
     })
     public ResponseEntity<EventResponseDTO> update(@PathVariable Long id, @Valid @RequestBody EventCreateDTO newEvent) {
         return ResponseEntity.ok(eventService.update(id, newEvent));

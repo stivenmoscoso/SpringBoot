@@ -1,11 +1,12 @@
 package com.example.eventify.controller;
 
+import com.example.eventify.dto.EventCreateDTO;
 import com.example.eventify.dto.EventSummaryDTO;
-import com.example.eventify.model.Event;
-import com.example.eventify.model.Venue;
+import com.example.eventify.dto.VenueCreateDTO;
 import com.example.eventify.service.CategoryService;
 import com.example.eventify.service.EventService;
 import com.example.eventify.service.VenueService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.validation.BindingResult;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -50,8 +52,12 @@ public class AdminCatalogController {
         model.addAttribute("events", events);
         model.addAttribute("venues", venueService.findAll());
         model.addAttribute("categories", categoryService.findAll());
-        model.addAttribute("event", new Event());
-        model.addAttribute("venue", new Venue());
+        if (!model.containsAttribute("event")) {
+            model.addAttribute("event", new EventCreateDTO(null, null, null, null, null, null));
+        }
+        if (!model.containsAttribute("venue")) {
+            model.addAttribute("venue", new VenueCreateDTO(null, null, null, null, null));
+        }
         model.addAttribute("city", city);
         model.addAttribute("category", category);
         model.addAttribute("capacity", capacity);
@@ -63,20 +69,33 @@ public class AdminCatalogController {
 
     @PostMapping("/admin/events")
     public String createEvent(
-            @ModelAttribute("event") Event event,
-            @RequestParam Long venueId,
-            @RequestParam(required = false) List<Long> categoryIds,
+            @Valid @ModelAttribute("event") EventCreateDTO event,
+            BindingResult bindingResult,
             RedirectAttributes redirectAttributes
     ) {
-        event.setVenue(venueService.findById(venueId));
-        event.setCategories(categoryService.findAllById(categoryIds));
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.event", bindingResult);
+            redirectAttributes.addFlashAttribute("event", event);
+            redirectAttributes.addFlashAttribute("error", "Revisa los campos del evento");
+            return "redirect:/admin/catalog";
+        }
         eventService.create(event);
         redirectAttributes.addFlashAttribute("message", "Evento registrado correctamente");
         return "redirect:/admin/catalog";
     }
 
     @PostMapping("/admin/venues")
-    public String createVenue(@ModelAttribute("venue") Venue venue, RedirectAttributes redirectAttributes) {
+    public String createVenue(
+            @Valid @ModelAttribute("venue") VenueCreateDTO venue,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes
+    ) {
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.venue", bindingResult);
+            redirectAttributes.addFlashAttribute("venue", venue);
+            redirectAttributes.addFlashAttribute("error", "Revisa los campos del venue");
+            return "redirect:/admin/catalog";
+        }
         venueService.create(venue);
         redirectAttributes.addFlashAttribute("message", "Venue registrado correctamente");
         return "redirect:/admin/catalog";

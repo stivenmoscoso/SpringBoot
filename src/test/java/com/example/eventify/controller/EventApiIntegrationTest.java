@@ -50,17 +50,17 @@ class EventApiIntegrationTest {
 
         mockMvc.perform(get("/api/events/9999"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").value("Evento no encontrado"));
+                .andExpect(jsonPath("$.detail").value("Evento no encontrado"));
 
         mockMvc.perform(put("/api/events/9999")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateRequest)))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").value("Evento no encontrado"));
+                .andExpect(jsonPath("$.detail").value("Evento no encontrado"));
 
         mockMvc.perform(delete("/api/events/9999"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").value("Evento no encontrado"));
+                .andExpect(jsonPath("$.detail").value("Evento no encontrado"));
     }
 
     @Test
@@ -93,6 +93,6 @@ class EventApiIntegrationTest {
 
         mockMvc.perform(get("/api/events/{id}", event.getId()))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").value("Evento no encontrado"));
+                .andExpect(jsonPath("$.detail").value("Evento no encontrado"));
     }
 }
